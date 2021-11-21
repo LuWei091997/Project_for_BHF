@@ -20,6 +20,8 @@ numpy == 1.19.5
 
 scikit-learn == 0.24.2
 
+matplotlib == 3.3.2
+
 ## 代码结构
 
 DeepLearning-for-predict-deformation

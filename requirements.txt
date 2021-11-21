@@ -1,0 +1,8 @@
+python == 3.8
+tensorflow == 2.4.0
+tensorflow-gpu == 2.4.0
+keras == 2.4.3
+opencv-python == 4.5.3.56
+numpy == 1.19.5
+scikit-learn == 0.24.2
+matplotlib == 3.3.2
