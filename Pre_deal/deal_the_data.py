@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
-from tools_for_image import get_the_number
+
 from normal_tools import read_data
+from normal_tools import save_data
+from tools_for_image import get_the_number
 from tools_for_image import read_all_pictures
 from tools_for_image import get_color_list
 from tools_for_image import creat_similar_image
@@ -110,54 +112,62 @@ if __name__ == '__main__':
     param = read_data.readfile(param_path)
     param = param[:, 0:-2]
     final_data = []
+    thicken_rate_data = []
     for path in all_path:
-        img = cv2.imread(path)
-        print('第', path, '次')
-        start_time = time.time()
-        # 获取是哪个图片，与工艺参数对应
         a = path.split('/', )
         b = a[4].split('.')
         num = (int(a[3]) - 1) * 100 + int(b[0])
-        parameters = param[num - 1]
-        # get thicken info from picture
-        thicken_red = get_the_number.get_num('red', img)  # 获取相应厚度
-        thicken_red = round((thicken_red - 1) * 100, 2)
+        if 0 <= (num-1) < 100:
+            print(num)
+            img = cv2.imread(path)
+            print('第', path, '次')
+            start_time = time.time()
+            # 获取是哪个图片，与工艺参数对应
 
-        thicken_blue = get_the_number.get_num('blue', img)  # 获取相应厚度
-        thicken_blue = round((thicken_blue - 1) * 100, 2)
+            parameters = param[num - 1]
+            # get thicken info from picture
+            thicken_red = get_the_number.get_num('red', img)  # 获取相应厚度
+            thicken_red = round((thicken_red - 1) * 100, 2)
 
-        thicken_green = get_the_number.get_num('green', img)  # 获取相应厚度
-        thicken_green = round((thicken_green - 1) * 100, 2)
+            thicken_blue = get_the_number.get_num('blue', img)  # 获取相应厚度
+            thicken_blue = round((thicken_blue - 1) * 100, 2)
 
-        thicken_yellow = get_the_number.get_num('yellow', img)  # 获取相应厚度
-        thicken_yellow = round((thicken_yellow - 1) * 100, 2)
+            thicken_green = get_the_number.get_num('green', img)  # 获取相应厚度
+            thicken_green = round((thicken_green - 1) * 100, 2)
 
-        thicken_cyan_blue = get_the_number.get_num('cyan-blue', img)  # 获取相应厚度
-        thicken_cyan_blue = round((thicken_cyan_blue - 1) * 100, 2)
+            thicken_yellow = get_the_number.get_num('yellow', img)  # 获取相应厚度
+            thicken_yellow = round((thicken_yellow - 1) * 100, 2)
 
-        thicken_orange = get_the_number.get_num('orange', img)  # 获取相应厚度
-        thicken_orange = round((thicken_orange - 1) * 100, 2)
-        # split picture 80*80
-        image = split_picture(img)
-        # insert param
-        data_with_thicken, color_name = get_color_(image, thicken_red, thicken_blue, thicken_green, thicken_yellow,
-                                                   thicken_cyan_blue,
-                                                   thicken_orange)
-        # print(color_name)
-        sim_img = creat_similar_image.image_compose(color_name)
-        path_im = '../output/sim_picture/' + str(num - 1) + '.jpg'
-        cv2.imwrite(path_im, sim_img)
-        data = insert_param(data_with_thicken, parameters)  # 输入一个图形的所有位置信息以及厚度，加工参数
-        final_data.append(data)
-        # print(data)
-        end_time = time.time()
-        print('所用时间：%fs' % (end_time - start_time))
-        del img
-        del start_time
-        del end_time
-        del sim_img
+            thicken_cyan_blue = get_the_number.get_num('cyan-blue', img)  # 获取相应厚度
+            thicken_cyan_blue = round((thicken_cyan_blue - 1) * 100, 2)
+
+            thicken_orange = get_the_number.get_num('orange', img)  # 获取相应厚度
+            thicken_orange = round((thicken_orange - 1) * 100, 2)
+            # split picture 80*80
+            image = split_picture(img)
+            # insert param
+            data_with_thicken, color_name = get_color_(image, thicken_red, thicken_blue, thicken_green, thicken_yellow,
+                                                       thicken_cyan_blue,
+                                                       thicken_orange)
+            # print(color_name)
+            sim_img = creat_similar_image.image_compose(color_name)
+            path_im = '../output/sim_picture/' + str(num - 1) + '.jpg'
+            cv2.imwrite(path_im, sim_img)
+            data = insert_param(data_with_thicken, parameters)  # 输入一个图形的所有位置信息以及厚度，加工参数
+            final_data.append(data)
+            # 提取该图片的最大厚度以及最小厚度变化
+            a = [abs(thicken_red / 100), abs(thicken_blue / 100)]
+            thicken_rate_data.insert((num - 1), a)
+            # print(data)
+            end_time = time.time()
+            print('所用时间：%fs' % (end_time - start_time))
+            del img
+            del start_time
+            del end_time
+            del sim_img
+    save_data.save_data('../output/Processed data/extract_thicken.csv', thicken_rate_data)
     final_data = np.array(final_data)
-    np.save(file='../output/final_data_green_0.npy', arr=final_data)
+    np.save(file='../output/Processed data/final_data_green_0.npy', arr=final_data)
     print('finsh')
     # 输出的矩阵尺寸为range_1*range_1*51
     # 输入尺寸为range_1*range_1*50
@@ -165,4 +175,3 @@ if __name__ == '__main__':
     '''from playsound import playsound
     path = '../sound/8517.wav'
     playsound(path)'''
-
